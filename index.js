@@ -1,8 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const dotenv = require("dotenv");
+const connectDB = require("./helpers/connectDB");
 
 const app = express();
+//before further ado done
+dotenv.config();
 
 /* configure body-parser */
 app.use(bodyParser.json())
@@ -15,20 +19,6 @@ app.use('/api/v1/users', user_route);
 app.use('/api/v1/products', product_route);
 app.use('/api/v1/carts', cart_route);
 app.use('/api/v1/orders', order_route);
-
-const dbConfig = require('./config/database-config');
-
-/* connecting to the database */
-mongoose.connect(dbConfig.URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => {
-    console.log("Successfully connected to the database");
-}).catch(err => {
-    console.log('Could not connect to the database. Exiting now...', err);
-    process.exit();
-});
 
 /* listen for requests */
 app.listen(3000, () => {
