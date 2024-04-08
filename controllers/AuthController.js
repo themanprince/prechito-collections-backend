@@ -1,31 +1,20 @@
-const User = require('../models/User');
+const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const api_config = require("../config/api.js");
-/*
-config/api.js contains just the jwt secret for now
-will change this to be in .env
-*/
 
 const AuthController = {
 
     /* create new user */
-    async create_user(req, res, next) {
-
-        const newUser = new User({
-            username: req.body.username,
-            email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, 10)
-            //please change this from hashSync, to non-blocking version
-        });
+    async create_admin(req, res, next) {
+		const {username, email, password} = req.body;
+        const newAdmin = new Admin({username, email, password});
 
         try {
-            const user = await newUser.save();
+            await newAdmin.save();
             res.status(201).json({
                 type : 'success',
-                message: "User has been created successfuly",
-                user
+                message: "Admin has been created successfuly",
+                newAdmin.toJSON()
             })
         } catch (err) {
             res.status(500).json({
@@ -39,23 +28,21 @@ const AuthController = {
     /* login existing user */
     async login_user(req, res) {
         
-        const user = await User.findOne({ username: req.body.username });
-
-        if (!user || /*change following compareSync to non-blocking version*/ !bcrypt.compareSync(req.body.password, user.password)) {
+        const {username, password, email} = req;
+        const validationSuccess = await Admin.authenticate({username, password, email});
+        
+        if (! validationSuccess) {
             res.status(500).json({
                 type: "error",
-                message: "User not exists or invalid credentials",
+                message: "invalid combination of username/email and password"
             })
         } else {
-
-            const accessToken = jwt.sign({
-                id: user._id,
-                isAdmin: user.isAdmin}, 
-            api_config.api.jwt_secret, //dotrnv pls
-            { expiresIn: "1d"}
+			const {_id, password, ...data} = await Admin.findOne( (username)? {username} : {email} );
+            
+            const accessToken = jwt.sign({_id}, 
+	            process.env.JWT_SECRET,
+	            { expiresIn: "1d"}
             );
-
-            const { password, ...data } = user._doc;
 
             res.status(200).json({
                 type: "success",

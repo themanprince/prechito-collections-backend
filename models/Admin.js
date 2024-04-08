@@ -27,13 +27,13 @@ class Admin {
 			throw new Error(`some element of propToUse not valid for finding elements with`);
 			
 		const conn = await connectDB();
-		const theQuery = `SELECT email, username, password FROM pc_admin.admin WHERE ${propKeys.map(key => `${key}='${propToUse[key]}'`).join(" AND ")}`;
+		const theQuery = `SELECT admin_id AS _id, email, username, password FROM pc_admin.admin WHERE ${propKeys.map(key => `${key}='${propToUse[key]}'`).join(" AND ")}`;
 		
 		const rows = (await conn.query(theQuery)).rows;
 		
 		const user = rows[0];
 		
-		return user;
+		return user || null;
 	}
 	
 	async save() {
