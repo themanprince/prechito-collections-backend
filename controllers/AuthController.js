@@ -3,6 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const api_config = require("../config/api.js");
+/*
+config/api.js contains just the jwt secret for now
+will change this to be in .env
+*/
 
 const AuthController = {
 
@@ -13,6 +17,7 @@ const AuthController = {
             username: req.body.username,
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password, 10)
+            //please change this from hashSync, to non-blocking version
         });
 
         try {
@@ -36,7 +41,7 @@ const AuthController = {
         
         const user = await User.findOne({ username: req.body.username });
 
-        if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
+        if (!user || /*change following compareSync to non-blocking version*/ !bcrypt.compareSync(req.body.password, user.password)) {
             res.status(500).json({
                 type: "error",
                 message: "User not exists or invalid credentials",
@@ -46,7 +51,7 @@ const AuthController = {
             const accessToken = jwt.sign({
                 id: user._id,
                 isAdmin: user.isAdmin}, 
-            api_config.api.jwt_secret,
+            api_config.api.jwt_secret, //dotrnv pls
             { expiresIn: "1d"}
             );
 
