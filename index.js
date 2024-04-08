@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 const { auth_route, user_route, product_route, cart_route, order_route } = require('./routes');
 
 app.use('/api/v1/auth', auth_route);
-app.use('/api/v1/users', user_route);
+/*app.use('/api/v1/users', user_route);*/ //wont be needing this for now
 app.use('/api/v1/products', product_route);
 app.use('/api/v1/carts', cart_route);
 app.use('/api/v1/orders', order_route);
