@@ -1,5 +1,8 @@
 START TRANSACTION;
 
+DROP SCHEMA IF EXISTS pc_admin;
+DROP SCHEMA IF EXISTS pc_product;
+
 CREATE SCHEMA IF NOT EXISTS pc_admin;
 CREATE SCHEMA IF NOT EXISTS pc_product;
 
@@ -17,8 +20,8 @@ DROP TABLE IF EXISTS pc_product.order_to_product;
 
 CREATE TABLE pc_admin.admin (
 	admin_id SERIAL PRIMARY KEY NOT NULL,
-	email VARCHAR(40) NOT NULL, /*for receiving order emails*/
-	username VARCHAR(40) NOT NULL,
+	email VARCHAR(40) NOT NULL UNIQUE, /*for receiving order emails*/
+	username VARCHAR(40) NOT NULL UNIQUE,
 	password TEXT NOT NULL,
 	salt TEXT NOT NULL,
 	CONSTRAINT valid_email CHECK (email ~ '.+@.+\.(com|org|edu)')
