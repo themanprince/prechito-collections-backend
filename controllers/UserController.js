@@ -44,6 +44,7 @@ const UserController = {
         const date = new Date();
         const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));
         try {
+        	//I speculate the below function is to group users based on the months they joined the app
             const data = await User.aggregate([
                 { $match : { 
                     createdAt: { $gte: lastYear }
@@ -72,6 +73,7 @@ const UserController = {
     /* update user */
     async update_user(req, res) {
         if(req.body.password) {
+        	//please change below to non-blocking format
             req.body.password = bcrypt.hashSync(req.body.password, 10)
         }
         
