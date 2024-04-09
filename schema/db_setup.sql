@@ -72,3 +72,5 @@ CREATE TABLE pc_product.order_to_product (
 	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
 	CONSTRAINT order_id_fk FOREIGN KEY (order_id) REFERENCES pc_product.order(order_id)
 );
+
+COMMIT;

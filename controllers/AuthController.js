@@ -7,6 +7,8 @@ const AuthController = {
     /* create new user */
     async create_admin(req, res, next) {
 		const {username, email, password} = req.body;
+		console.log(`COntroller: req.body is`);
+		console.table(req.body);
         const newAdmin = new Admin({username, email, password});
 
         try {
@@ -14,13 +16,15 @@ const AuthController = {
             res.status(201).json({
                 type : 'success',
                 message: "Admin has been created successfuly",
-                newAdmin.toJSON()
+                data: newAdmin.toJSON()
             })
         } catch (err) {
+        	console.log("in AuthControlle, error is");
+        	console.error(err);
             res.status(500).json({
                 type: "error",
                 message: "Something went wrong please try again",
-                err
+                "err": err.message
             })
         }
     },
@@ -37,9 +41,9 @@ const AuthController = {
                 message: "invalid combination of username/email and password"
             })
         } else {
-			const {_id, password, ...data} = await Admin.findOne( (username)? {username} : {email} );
+			const {admin_id, password, ...data} = await Admin.findOne( (username)? {username} : {email} );
             
-            const accessToken = jwt.sign({_id}, 
+            const accessToken = jwt.sign({admin_id}, 
 	            process.env.JWT_SECRET,
 	            { expiresIn: "1d"}
             );

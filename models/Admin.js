@@ -1,22 +1,36 @@
 const bcryptjs = require("bcryptjs");
-const connectDB = require(_dirname + "/../helpers/connectDB");
+const connectDB = require(__dirname + "/../helpers/connectDB");
 
 class Admin {
 	
-	__id, #email, #username, #password, #salt;	
+	/*admin_id field dey too*/
+	#email;
+	#username;
+	#password;
+	#salt;
 	
 	constructor(payload) {
+		console.log("in constructor, payload is", payload);
+		this.admin_id = null;
+		this.#salt = null;
 		const {email, username, password} = payload;
 		this.#email = email;
 		this.#username = username;
 		this.#password = password;
+		
+		console.log("after storing em in this'es");
+		console.table({
+			email: this.#email,
+			username: this.#username,
+			password: this.#password
+		});
 	}
 	
 	toJSON() {
 		return {
 			"email": this.#email,
 			"username": this.#username,
-			"_id": this._id
+			"admin_id": this.admin_id
 		};
 	}
 	
@@ -27,7 +41,7 @@ class Admin {
 			throw new Error(`some element of propToUse not valid for finding elements with`);
 			
 		const conn = await connectDB();
-		const theQuery = `SELECT admin_id AS _id, email, username, password FROM pc_admin.admin WHERE ${propKeys.map(key => `${key}='${propToUse[key]}'`).join(" AND ")}`;
+		const theQuery = `SELECT admin_id, email, username, password FROM pc_admin.admin WHERE ${propKeys.map(key => `${key}='${propToUse[key]}'`).join(" AND ")}`;
 		
 		const rows = (await conn.query(theQuery)).rows;
 		
@@ -37,28 +51,32 @@ class Admin {
 	}
 	
 	async save() {
+		console.log("got to Admin.save()");
 		const userWithThisEmail = await Admin.findOne({"email": this.#email});
+		console.log(`got to after userWithThisEmail, its ${userWithThisEmail}`);
 		const userWithThisUsername = await Admin.findOne({"username": this.#username});
+		console.log(`got to after userWithThisUsername, it s${userWithThisUsername}`);
 		
-		const throwError = (fld) => throw Error("Users already exist with this " + fld);
+		const throwError = (fld) => {throw new Error("Users already exist with this " + fld)};
 		
 		if(userWithThisUsername)
 			throwError("username");
 			
 		if(userWithThisEmail)
 			throwError("email");
-		
+			
 		this.#salt = await bcryptjs.genSalt(3, 10);
 		this.#password = await bcryptjs.hash(this.#password, this.#salt);
+		console.log(`after bcryptjs =, salt is ${this.#salt}, pass is ${this.#password}`);
 		
 		const query = `
 			INSERT INTO pc_admin.admin(email, username, password, salt)
 			VALUES ($1, $2, $3, $4)
 			RETURNING admin_id;
 		`;
-		const conn = connectDB();
+		const conn = await connectDB();
 		const result /*contains id*/ = await conn.query(query, [this.#email, this.#username, this.#password, this.#salt]);
-		this._id = result.rows[0]["admin_id"];
+		this.admin_id = result.rows[0]["admin_id"];
 	}
 	
 	static async authenticate(payload /*username/email and password to check*/) {
