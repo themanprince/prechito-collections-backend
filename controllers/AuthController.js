@@ -33,13 +33,24 @@ const AuthController = {
     async login_admin(req, res) {
         
         const {username, password, email} = req.body;
-        const validationSuccess = await Admin.authenticate({username, password, email});
         
-        if (! validationSuccess) {
-            res.status(500).json({
+        const sendError = () => {
+        	res.status(500).json({
                 type: "error",
                 message: "invalid combination of username/email and password"
             })
+        }
+        
+        let validationSuccess;
+        
+        try {
+        	validationSuccess = await Admin.authenticate({username, password, email});
+        } catch (err) {
+        	return sendError();
+        }
+        
+        if (! validationSuccess) {
+           sendError();
         } else {
 			const {admin_id, password, ...data} = await Admin.findOne( (username)? {username} : {email} );
             
