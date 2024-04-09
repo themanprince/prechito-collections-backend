@@ -26,9 +26,9 @@ const AuthController = {
     },
 
     /* login existing user */
-    async login_user(req, res) {
+    async login_admin(req, res) {
         
-        const {username, password, email} = req;
+        const {username, password, email} = req.body;
         const validationSuccess = await Admin.authenticate({username, password, email});
         
         if (! validationSuccess) {
