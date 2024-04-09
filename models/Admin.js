@@ -10,7 +10,7 @@ class Admin {
 	#salt;
 	
 	constructor(payload) {
-		console.log("in constructor, payload is", payload);
+		
 		this.admin_id = null;
 		this.#salt = null;
 		const {email, username, password} = payload;
@@ -18,12 +18,6 @@ class Admin {
 		this.#username = username;
 		this.#password = password;
 		
-		console.log("after storing em in this'es");
-		console.table({
-			email: this.#email,
-			username: this.#username,
-			password: this.#password
-		});
 	}
 	
 	toJSON() {
@@ -51,11 +45,11 @@ class Admin {
 	}
 	
 	async save() {
-		console.log("got to Admin.save()");
+		
 		const userWithThisEmail = await Admin.findOne({"email": this.#email});
-		console.log(`got to after userWithThisEmail, its ${userWithThisEmail}`);
+		
 		const userWithThisUsername = await Admin.findOne({"username": this.#username});
-		console.log(`got to after userWithThisUsername, it s${userWithThisUsername}`);
+		
 		
 		const throwError = (fld) => {throw new Error("Users already exist with this " + fld)};
 		
@@ -67,7 +61,7 @@ class Admin {
 			
 		this.#salt = await bcryptjs.genSalt(3, 10);
 		this.#password = await bcryptjs.hash(this.#password, this.#salt);
-		console.log(`after bcryptjs =, salt is ${this.#salt}, pass is ${this.#password}`);
+		
 		
 		const query = `
 			INSERT INTO pc_admin.admin(email, username, password, salt)

@@ -7,8 +7,8 @@ const AuthController = {
     /* create new user */
     async create_admin(req, res, next) {
 		const {username, email, password} = req.body;
-		console.log(`COntroller: req.body is`);
-		console.table(req.body);
+		
+		
         const newAdmin = new Admin({username, email, password});
 
         try {
@@ -19,8 +19,8 @@ const AuthController = {
                 data: newAdmin.toJSON()
             })
         } catch (err) {
-        	console.log("in AuthControlle, error is");
-        	console.error(err);
+        	
+        	
             res.status(500).json({
                 type: "error",
                 message: "Something went wrong please try again",
