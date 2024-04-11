@@ -1,7 +1,5 @@
 const jwt =require('jsonwebtoken')
 
-const api_config = require("../config/api.js");
-
 /* jwt token verify */
 const authenticationVerifier = (req, res, next)=> {
 
@@ -9,10 +7,10 @@ const authenticationVerifier = (req, res, next)=> {
 
     if (authHeader) {
         const token = authHeader.split(' ')[1];
-        jwt.verify(token, api_config.api.jwt_secret,(err, user)=>{
+        jwt.verify(token, process.env.JWT_SECRET,(err, adminDetails)=>{
         	//please use a return statement in next line to ensure that the following lines are not reached
             if(err) res.status(401).json("Invalid token");
-            req.user = user;
+            req.adminDetails = adminDetails;
             next()
         })
     } else {
@@ -21,15 +19,8 @@ const authenticationVerifier = (req, res, next)=> {
 }
 
 /* check if the current user */
-const accessLevelVerifier = (req, res, next) => {
+/*const accessLevelVerifier = (req, res, next) => {
     authenticationVerifier(req,res, ()=>{
-    	/*
-    		this is specifically for 'PUT user/:id' routes
-    		the first-half condition of below if statement goes like this
-    			"if the user whose details you wish to update (specified by params.id) is you,
-    			then you're free"
-    		the second half condition says you have to be admin first
-    	*/
         if(req.user.id === req.params.id || req.user.isAdmin) {
             next()
         } else {
@@ -37,9 +28,10 @@ const accessLevelVerifier = (req, res, next) => {
         }
     })
 }
-
+*/
+  
 /* access_level_verifier('admin') */
-const isAdminVerifier = (req, res, next) => {
+/*const isAdminVerifier = (req, res, next) => {
     authenticationVerifier(req, res, ()=> {
         if(req.user.isAdmin) {
             next();
@@ -48,5 +40,5 @@ const isAdminVerifier = (req, res, next) => {
         }
     })
 }
-
-module.exports = { authenticationVerifier, accessLevelVerifier, isAdminVerifier };
+*/
+module.exports = { authenticationVerifier/*, accessLevelVerifier, isAdminVerifier*/ };

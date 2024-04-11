@@ -38,7 +38,7 @@ CREATE TABLE pc_product.product (
 
 CREATE TABLE pc_product.product_category (
 	product_category_id SERIAL PRIMARY KEY NOT NULL,
-	name VARCHAR(40) NOT NULL
+	name VARCHAR(40) UNIQUE NOT NULL
 );
 
 CREATE TABLE pc_product.product_to_category (

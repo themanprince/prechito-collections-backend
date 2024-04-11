@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const Product = require(__dirname + '/../models/Product');
 
 const ProductController = {
     
@@ -13,8 +13,10 @@ const ProductController = {
             let products;
 
             if(qNew) {
+            	//get new products
                 products = await Product.find().sort({ createdAt: -1 }).limit(5);
             } else if (qCategory) {
+            	//get by category
                 products = await Product.find({ 
                     categories: {
                         $in: [qCategory]

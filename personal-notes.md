@@ -7,4 +7,8 @@
 ### I wish to test...
 * /models/Admin.js
 * /controllers/AuthController.js
-* /routes/auth.js - (/api/v1/auth/admin)
+* /routes/auth.js - (/api/v1/auth/admin) ✅
+* /models/Category.js
+* /controllers/CategoryController.js
+* /routes/category.js = (/api/v1/category/create)
+* /middlewares/verifyToken.js
