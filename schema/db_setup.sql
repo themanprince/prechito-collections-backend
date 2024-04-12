@@ -1,5 +1,8 @@
 START TRANSACTION;
 
+DROP SCHEMA IF EXISTS pc_admin;
+DROP SCHEMA IF EXISTS pc_product;
+
 CREATE SCHEMA IF NOT EXISTS pc_admin;
 CREATE SCHEMA IF NOT EXISTS pc_product;
 
@@ -17,8 +20,8 @@ DROP TABLE IF EXISTS pc_product.order_to_product;
 
 CREATE TABLE pc_admin.admin (
 	admin_id SERIAL PRIMARY KEY NOT NULL,
-	email VARCHAR(40) NOT NULL, /*for receiving order emails*/
-	username VARCHAR(40) NOT NULL,
+	email VARCHAR(40) NOT NULL UNIQUE, /*for receiving order emails*/
+	username VARCHAR(40) NOT NULL UNIQUE,
 	password TEXT NOT NULL,
 	salt TEXT NOT NULL,
 	CONSTRAINT valid_email CHECK (email ~ '.+@.+\.(com|org|edu)')
@@ -35,7 +38,7 @@ CREATE TABLE pc_product.product (
 
 CREATE TABLE pc_product.product_category (
 	product_category_id SERIAL PRIMARY KEY NOT NULL,
-	name VARCHAR(40) NOT NULL
+	name VARCHAR(40) UNIQUE NOT NULL
 );
 
 CREATE TABLE pc_product.product_to_category (
@@ -69,3 +72,5 @@ CREATE TABLE pc_product.order_to_product (
 	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
 	CONSTRAINT order_id_fk FOREIGN KEY (order_id) REFERENCES pc_product.order(order_id)
 );
+
+COMMIT;

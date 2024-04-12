@@ -17,8 +17,17 @@ echo "";
 echo "running schema script";
 cd "./schema";
 
-psql -U themanprince -d prechitocollections -c "\i './db_setup.sql'";
+dbusername="themanprince"
+dbname="prechitocollections"
+
+psql -U $dbusername -d $dbname -c "\i './db_setup.sql'";
 
 cd "..";
 
-npm start;
+npm start; #I believe below kini gotta wait for this to terminate first
+
+echo ""
+psql -U $dbusername -d $dbname -c "DROP SCHEMA pc_admin CASCADE";
+psql -U $dbusername -d $dbname -c "DROP SCHEMA pc_product CASCADE";
+
+pg_ctl stop
