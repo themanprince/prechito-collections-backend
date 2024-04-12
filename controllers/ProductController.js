@@ -17,7 +17,6 @@ const ProductController = {
             else
                 products = await Product.getPage(qPg);
             
-            
             res.status(200).json({
                 type: "success",
                 products

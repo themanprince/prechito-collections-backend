@@ -16,8 +16,8 @@ const { auth_route, category_route, product_route, cart_route, order_route } = r
 
 app.use('/api/v1/auth/admin', auth_route);
 app.use('/api/v1/category', category_route);
-/*app.use('/api/v1/users', user_route); //wont be needing this for now
 app.use('/api/v1/products', product_route);
+/*app.use('/api/v1/users', user_route); //wont be needing this for now
 app.use('/api/v1/carts', cart_route);
 app.use('/api/v1/orders', order_route); */
 
