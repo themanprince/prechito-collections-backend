@@ -10,5 +10,5 @@
 * /routes/auth.js - (/api/v1/auth/admin) ✅
 * /models/Category.js
 * /controllers/CategoryController.js
-* /routes/category.js = (/api/v1/category/create)
+* /routes/category.js = (/api/v1/category/) ✅
 * /middlewares/verifyToken.js

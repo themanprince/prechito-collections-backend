@@ -8,9 +8,9 @@ class Category {
 				const id = await Category.save(category);
 				category_ids.push(id);
 			}
+			return category_ids;
 		} else {
-			categoryLC = category.toLowerCase();
-			
+			let categoryLC = categories/*ish*/.toLowerCase();
 			const pool = await connectDB();
 			const cat_exists_query = `
 				SELECT
@@ -26,7 +26,7 @@ class Category {
 			if(exists)
 				throw new Error("category already exists with this name");
 			else {
-				const insert_query = `INSERT INTO pc_product.category (name) VALUES ($1) RETURNING product_category_id`;
+				const insert_query = `INSERT INTO pc_product.product_category (name) VALUES ($1) RETURNING product_category_id`;
 				const result = await pool.query(insert_query, [categoryLC]);
 				return result.rows[0]["product_category_id"];
 			}
