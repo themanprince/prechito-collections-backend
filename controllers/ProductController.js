@@ -5,26 +5,19 @@ const ProductController = {
     /* get all products */
     async get_products(req, res) {
 
-        const qNew = req.query.new;
+        const qPg = req.query.pg || 0;
         const qCategory = req.query.category;
 
         try {
 
             let products;
 
-            if(qNew) {
-            	//get new products
-                products = await Product.find().sort({ createdAt: -1 }).limit(5);
-            } else if (qCategory) {
-            	//get by category
-                products = await Product.find({ 
-                    categories: {
-                        $in: [qCategory]
-                    }
-                });
-            } else {
-                products = await Product.find();
-            }
+            if (qCategory)
+            	products = await Product.getPageByCategoryName(qPg, qCategory);
+            else
+                products = await Product.getPage(qPg);
+            
+            
             res.status(200).json({
                 type: "success",
                 products
@@ -91,11 +84,7 @@ const ProductController = {
             })
         } else {
             try {
-                const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {
-                    $set: req.body
-                },
-                    { new: true }
-                );
+                const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body);
                 res.status(200).json({
                     type: "success",
                     message: "Product updated successfully",
@@ -112,7 +101,7 @@ const ProductController = {
     },
 
     /* delete product */
-    async delete_user(req, res) {
+    async delete_product(req, res) {
         const existing = await Product.findById(req.params.id);
         if (!existing) {
             res.status(200).json({
