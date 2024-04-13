@@ -38,18 +38,19 @@ CREATE TABLE pc_product.product (
 
 CREATE TABLE pc_product.product_category (
 	product_category_id SERIAL PRIMARY KEY NOT NULL,
-	name VARCHAR(40) UNIQUE NOT NULL
+	category_name VARCHAR(40) UNIQUE NOT NULL
 );
 
 CREATE TABLE pc_product.product_to_category (
 	product_id INTEGER NOT NULL,
 	product_category_id INTEGER NOT NULL,
-	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
+	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id)
+		ON DELETE CASCADE, /*the book said this may be a bad decision, but I be reading btw the lines*/
 	CONSTRAINT product_category_id_fk FOREIGN KEY (product_category_id) REFERENCES pc_product.product_category(product_category_id)
 );
 
 /*
-	Note below that "amount" column is not
+	Note below that "amount" column is not(yes, it is "not")
 	
 	this cus it's obtainable by (product price × quantity) - percent discount
 	

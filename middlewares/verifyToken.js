@@ -8,8 +8,7 @@ const authenticationVerifier = (req, res, next)=> {
     if (authHeader) {
         const token = authHeader.split(' ')[1];
         jwt.verify(token, process.env.JWT_SECRET,(err, adminDetails)=>{
-        	//please use a return statement in next line to ensure that the following lines are not reached
-            if(err) res.status(401).json("Invalid token");
+            if(err) return res.status(401).json("Invalid token");
             req.adminDetails = adminDetails;
             next()
         })

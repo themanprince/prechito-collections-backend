@@ -15,7 +15,7 @@ class Category {
 			const cat_exists_query = `
 				SELECT
 					CASE
-						WHEN EXISTS (SELECT name FROM pc_product.product_category WHERE name='${categoryLC}')
+						WHEN EXISTS (SELECT category_name FROM pc_product.product_category WHERE category_name='${categoryLC}')
 							THEN 1
 							ELSE 0
 					END AS exists
@@ -26,7 +26,7 @@ class Category {
 			if(exists)
 				throw new Error("category already exists with this name");
 			else {
-				const insert_query = `INSERT INTO pc_product.product_category (name) VALUES ($1) RETURNING product_category_id`;
+				const insert_query = `INSERT INTO pc_product.product_category (category_name) VALUES ($1) RETURNING product_category_id`;
 				const result = await pool.query(insert_query, [categoryLC]);
 				return result.rows[0]["product_category_id"];
 			}

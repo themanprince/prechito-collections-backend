@@ -31,3 +31,5 @@ psql -U $dbusername -d $dbname -c "DROP SCHEMA pc_admin CASCADE";
 psql -U $dbusername -d $dbname -c "DROP SCHEMA pc_product CASCADE";
 
 pg_ctl stop
+
+sleep 0.5 && clear

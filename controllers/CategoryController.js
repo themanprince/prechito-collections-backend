@@ -13,7 +13,7 @@ const CategoryController =  {
 				"msg": "save categor(ies) successful",
 				"data": category_ids
 			});
-		}catch(err) {
+		} catch(err) {
 			res.status(500).json({
 				"type": "error",
 				"msg": "create categories failed",
