@@ -44,8 +44,7 @@ CREATE TABLE pc_product.product_category (
 CREATE TABLE pc_product.product_to_category (
 	product_id INTEGER NOT NULL,
 	product_category_id INTEGER NOT NULL,
-	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id)
-		ON DELETE CASCADE, /*the book said this may be a bad decision, but I be reading btw the lines*/
+	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
 	CONSTRAINT product_category_id_fk FOREIGN KEY (product_category_id) REFERENCES pc_product.product_category(product_category_id)
 );
 
@@ -58,20 +57,40 @@ CREATE TABLE pc_product.product_to_category (
 */
 CREATE TABLE pc_product.order (
 	order_id SERIAL PRIMARY KEY NOT NULL,
-	discount DOUBLE PRECISION NOT NULL,
 	user_fname VARCHAR(40) NOT NULL,
 	user_phone_no VARCHAR(40) NOT NULL,
 	user_address TEXT NOT NULL,
-	pending BOOLEAN NOT NULL,
+	is_paid_for BOOLEAN NOT NULL,
+	is_order_delivered BOOLEAN NOT NULL,
 	time_stamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE pc_product.order_to_product (
+CREATE TABLE pc_product.purchased_product (
 	product_id INTEGER NOT NULL,
 	order_id INTEGER NOT NULL,
 	quantity_purchased INTEGER NOT NULL,
+	buying_price INTEGER,
 	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
 	CONSTRAINT order_id_fk FOREIGN KEY (order_id) REFERENCES pc_product.order(order_id)
 );
+
+CREATE OR REPLACE FUNCTION insert_buying_price()
+RETURNS TRIGGER
+AS $$
+	DECLARE buy_price INTEGER;
+	BEGIN
+		SELECT price FROM pc_product.product AS p WHERE p.product_id = NEW.product_id
+		INTO buy_price;
+		
+		NEW.buying_price = buy_price;
+		
+		RETURN NEW;
+	END;
+$$ language plpgsql;
+
+CREATE TRIGGER get_buy_price
+BEFORE INSERT ON pc_product.purchased_product
+FOR EACH ROW
+EXECUTE FUNCTION insert_buying_price();
 
 COMMIT;
