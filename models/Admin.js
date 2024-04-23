@@ -97,6 +97,8 @@ class Admin {
 		const isValidPassword = await bcryptjs.compare(password, theUser.password);
 		return isValidPassword;
 	}
+	
+	
 }
 
 module.exports = Admin;
