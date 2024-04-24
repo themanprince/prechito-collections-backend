@@ -1,5 +1,6 @@
 const Order = require(__dirname + "/../models/Order");
 const Product = require(__dirname + "/../models/Product");
+const Admin = require(__dirname + "/../models/Admin");
 const decrypt = require(__dirname + "/../helpers/decrypt");
 const princeMutex = require("prince-mutex");
 const log = require(__dirname + "/../helpers/logger.js");
@@ -33,19 +34,30 @@ const OrderController = {
 			log("ORDER MADE:: " + order);
 			
 			const bankDetails = await PaymentService.getBankDetails(order_id); //order_id is used as ref to track payment
-			setTimeout(() => {
-				//omo, this just keeps getting longer
+			res.status(200).json(bankDetails);
+			
+			function checkIfPaymentMadeAfterTimeout() {
+				//this will be called after following timeout
 				const paymentIsMade = await PaymentService.isPaymentMade(order_id);
+
 				if(paymentIsMade) {
 					log(`ORDER PAID:: order_id:${order_id}`);
 					await order.markAsPaid();
-					//todo - for all admins
-					await EmailService.sendOrderMadeEmail();
+					const admins = await Admin.getAllEmailsAndName();
+					for(let admin of admins) {
+						const admin_name = admin.username;
+						const {user_fname, user_address} = orderObj.personal_details;
+						await EmailService.sendOrderEmail(admin.email, {admin_name, user_fname, user_address});
+					}
+					//todo - whenever... send user a receipt... cant use already-used res Object
 				} else {
-					
+					await Order.undoOrder(order_id);
+					log(`ORDER DELETED:: order_id:${order_id}`);
 				}
-			}, BANK_PAY_TIMEOUT);
-			return res.status(200).json(bankDetails);
+			}
+			
+			setTimeout(checkIfPaymentMadeAfterTimeout, BANK_PAY_TIMEOUT);
+
 		});
 	}
 };

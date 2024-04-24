@@ -1,4 +1,5 @@
 const connectDB = require(__dirname + "/../helpers/connectDB");
+const Product = require(__dirname + "/../models/Product");
 
 class Order {
 	
@@ -27,7 +28,7 @@ class Order {
 		for(let product of this.#products_ordered) {
 			const {product_id, quantity_ordered} = product;
 			query = `
-				INSERT INTO pc_product.purchased_products (order_id, product_id, quantity_ordered)
+				INSERT INTO pc_product.purchased_product (order_id, product_id, quantity_ordered)
 				VALUES ($1,$2,$3)`;
 			await conn.query(query, [order_id, product_id, quantity_ordered]);
 		}
@@ -53,6 +54,41 @@ class Order {
 		`;
 		
 		await conn.query(query, [true, this.order_id]);
+	}
+	
+	async undoOrder(order_id) {
+		const conn = await connectDB();
+		
+		const getPurcasedProductsQuery = `
+			SELECT product_id, quantity_purchased
+			FROM pc_product.purchased_product
+			WHERE order_id=$1
+		`;
+		
+		const result = await conn.query(getPurcasedProductsQuery, [order_id]);
+		
+		for(let product_purchased of result.rows) {
+			const product_purchased_id = product_purchased.product_id;
+			const originalProduct = await Product.findById(product_purchased_id);
+			originalProduct.quantity_avail += product_purchased.quantity_purchased;
+			//next line is so as to maintain interface expected by Product.findByIdAndUpdate
+			originalProduct.category_ids = originalProduct.categories.map(cat => cat["product_category_id"]);
+			await Product.findByIdAndUpdate(originalProduct.product_id, originalProduct);
+			
+			const deleteThisPurchasedProdQuery = `
+				DELETE FROM pc_product.purchased_product
+				WHERE product_id=$1
+			`;
+			
+			await conn.query(deleteThisPurchasedProdQuery, [product_purchased_id]);
+		}
+		
+		const deleteOrderQuery = `
+			DELETE FROM pc_product.order
+			WHERE order_id=$1
+		`;
+		
+		await conn.query(deleteOrderQuery, [order_id]);
 	}
 }
 

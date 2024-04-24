@@ -98,7 +98,12 @@ class Admin {
 		return isValidPassword;
 	}
 	
-	
+	static async getAllEmailsAndNames() {
+		const conn = await connectDB();
+		const query = `SELECT email, username FROM pc_admin.admin`;
+		const result = await conn.query(query);
+		return result.rows;
+	}
 }
 
 module.exports = Admin;
