@@ -75,6 +75,7 @@ class Product {
 			WHERE product_id=$1
 		`;
 		let result = await conn.query(query, [id]);
+		console.log("in Product.findById, result is", result);
 		product = result.rows[0];
 		
 		//next getting the category names

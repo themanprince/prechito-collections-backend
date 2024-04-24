@@ -8,18 +8,22 @@ const PaymentService = require(__dirname + "/../services/payment.js");
 const EmailService = require(__dirname + "/../services/email.js");
 const {BANK_PAY_TIMEOUT} = require(__dirname + "/../config/constants-config");
 
-const mutex = new princeMutex(); //global scoped mutex.. yes, you can see that and so what?
+const mutex = new princeMutex(); //had to make sure it was globally scoped
 
 const OrderController = {
 	async create_order(req, res) {
+		console.log("got to OrderController.create_order");
 		const {encryptedOrder} = req.body;
+		//make sure req.body has a field called encryptedOrder
 		const orderObj = await decrypt(encryptedOrder);
-		
+		console.log("after decrypting, orderObj is", orderObj);
+
 		mutex.queueCritical(async () => {
 			const {products_ordered} = orderObj;
-			
+			console.log("inside mutex.queueCritical, products_ordered is", products_ordered);
 			for(let product of products_ordered) {
 				/*Product and product are not same*/const productOrdered = await Product.findById(product.product_id);
+				console.log("inside loop through products_ordered, \njust obtained the original product as", productOrdered);
 				if(product.quantity_ordered > productOrdered.quantity_avail) {
 					return /*to release mutex*/res.status(400).json({
 						"type": "error",
@@ -36,7 +40,7 @@ const OrderController = {
 			const bankDetails = await PaymentService.getBankDetails(order_id); //order_id is used as ref to track payment
 			res.status(200).json(bankDetails);
 			
-			function checkIfPaymentMadeAfterTimeout() {
+			async function checkIfPaymentMadeAfterTimeout() {
 				//this will be called after following timeout
 				const paymentIsMade = await PaymentService.isPaymentMade(order_id);
 

@@ -44,7 +44,7 @@ CREATE TABLE pc_product.product_category (
 CREATE TABLE pc_product.product_to_category (
 	product_id INTEGER NOT NULL,
 	product_category_id INTEGER NOT NULL,
-	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id),
+	CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES pc_product.product(product_id) ON DELETE CASCADE,
 	CONSTRAINT product_category_id_fk FOREIGN KEY (product_category_id) REFERENCES pc_product.product_category(product_category_id)
 );
 
