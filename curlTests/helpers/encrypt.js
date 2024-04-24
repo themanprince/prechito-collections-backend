@@ -9,4 +9,4 @@ const cipher = crypto.createCipheriv(algo, key, iv);
 let encryptedOutput = cipher.update(stringToEncrypt, 'utf-8', 'hex');
 encryptedOutput += cipher.final('hex');
 
-console.log(encryptedOutput);
+console.log(encryptedOutput); //output to stdout

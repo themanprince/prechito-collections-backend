@@ -12,18 +12,14 @@ const mutex = new princeMutex(); //had to make sure it was globally scoped
 
 const OrderController = {
 	async create_order(req, res) {
-		console.log("got to OrderController.create_order");
 		const {encryptedOrder} = req.body;
 		//make sure req.body has a field called encryptedOrder
 		const orderObj = await decrypt(encryptedOrder);
-		console.log("after decrypting, orderObj is", orderObj);
 
 		mutex.queueCritical(async () => {
 			const {products_ordered} = orderObj;
-			console.log("inside mutex.queueCritical, products_ordered is", products_ordered);
 			for(let product of products_ordered) {
 				/*Product and product are not same*/const productOrdered = await Product.findById(product.product_id);
-				console.log("inside loop through products_ordered, \njust obtained the original product as", productOrdered);
 				if(product.quantity_ordered > productOrdered.quantity_avail) {
 					return /*to release mutex*/res.status(400).json({
 						"type": "error",
@@ -35,28 +31,30 @@ const OrderController = {
 			const order = new Order(orderObj);
 			const order_id = await order.save();
 			
+			
 			log("ORDER MADE:: " + order);
 			
 			const bankDetails = await PaymentService.getBankDetails(order_id); //order_id is used as ref to track payment
+	
 			res.status(200).json(bankDetails);
 			
 			async function checkIfPaymentMadeAfterTimeout() {
 				//this will be called after following timeout
 				const paymentIsMade = await PaymentService.isPaymentMade(order_id);
-
 				if(paymentIsMade) {
-					log(`ORDER PAID:: order_id:${order_id}`);
+					log(`ORDER PAID:: ORDER_ID:${order_id}`);
 					await order.markAsPaid();
-					const admins = await Admin.getAllEmailsAndName();
+					const admins = await Admin.getAllEmailsAndNames();
+					
 					for(let admin of admins) {
 						const admin_name = admin.username;
 						const {user_fname, user_address} = orderObj.personal_details;
-						await EmailService.sendOrderEmail(admin.email, {admin_name, user_fname, user_address});
+						await EmailService.sendOrderMail(admin.email, {admin_name, "user_name": user_fname, user_address});
 					}
 					//todo - whenever... send user a receipt... cant use already-used res Object
 				} else {
 					await Order.undoOrder(order_id);
-					log(`ORDER DELETED:: order_id:${order_id}`);
+					log(`ORDER DELETED:: ORDER_ID:${order_id}`);
 				}
 			}
 			
