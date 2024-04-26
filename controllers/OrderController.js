@@ -1,145 +1,67 @@
-const Order = require('../models/Order');
+const Order = require(__dirname + "/../models/Order");
+const Product = require(__dirname + "/../models/Product");
+const Admin = require(__dirname + "/../models/Admin");
+const decrypt = require(__dirname + "/../helpers/decrypt");
+const princeMutex = require("prince-mutex");
+const log = require(__dirname + "/../helpers/logger.js");
+const PaymentService = require(__dirname + "/../services/payment.js");
+const EmailService = require(__dirname + "/../services/email.js");
+const {BANK_PAY_TIMEOUT} = require(__dirname + "/../config/constants-config");
+
+const mutex = new princeMutex(); //had to make sure it was globally scoped
 
 const OrderController = {
+	async create_order(req, res) {
+		const {encryptedOrder} = req.body;
+		//make sure req.body has a field called encryptedOrder
+		const orderObj = await decrypt(encryptedOrder);
 
-    /* get all orders (only admin) */
-    async get_orders(req, res) {
-        try {
-            const orders = await Order.find();
-            res.status(200).json({
-                type: "success",
-                orders
-            })
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    },
+		mutex.queueCritical(async () => {
+			const {products_ordered} = orderObj;
+			for(let product of products_ordered) {
+				/*Product and product are not same*/const productOrdered = await Product.findById(product.product_id);
+				if(product.quantity_ordered > productOrdered.quantity_avail) {
+					return /*to release mutex*/res.status(400).json({
+						"type": "error",
+						"msg": `Quantity specified for ${productOrdered.title} is more than available quantity`
+					});
+				}
+			}
+			
+			const order = new Order(orderObj);
+			const order_id = await order.save();
+			
+			
+			log("ORDER MADE:: " + order);
+			
+			const bankDetails = await PaymentService.getBankDetails(order_id); //order_id is used as ref to track payment
+	
+			res.status(200).json(bankDetails);
+			
+			async function checkIfPaymentMadeAfterTimeout() {
+				//this will be called after following timeout
+				const paymentIsMade = await PaymentService.isPaymentMade(order_id);
+				if(paymentIsMade) {
+					log(`ORDER PAID:: ORDER_ID:${order_id}`);
+					await order.markAsPaid();
+					const admins = await Admin.getAllEmailsAndNames();
+					
+					for(let admin of admins) {
+						const admin_name = admin.username;
+						const {user_fname, user_address} = orderObj.personal_details;
+						await EmailService.sendOrderMail(admin.email, {admin_name, "user_name": user_fname, user_address});
+					}
+					//todo - whenever... send user a receipt... cant use already-used res Object
+				} else {
+					await Order.undoOrder(order_id);
+					log(`ORDER DELETED:: ORDER_ID:${order_id}`);
+				}
+			}
+			
+			setTimeout(checkIfPaymentMadeAfterTimeout, BANK_PAY_TIMEOUT);
 
-    /* get monthly income (only admin)*/
-    async get_income(req, res) {
-        const date = new Date();
-        const lastMonth =  new Date(date.setMonth(date.getMonth()-1));
-        const previousMonth = new Date(new Date().setMonth(lastMonth.getMonth() - 1));
-
-        try {
-            const income = await Order.aggregate([
-                { $match: { 
-                    createdAt: { 
-                            $gte: previousMonth
-                        },
-                    },
-                },
-                { 
-                    $project:{ 
-                        month: { $month: "$createdAt" },
-                        sales: "$amount",
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$month",
-                        total: { $sum: "$sales" }
-                    }
-                },  
-            ]);
-            res.status(200).json({
-                type: "success",
-                income
-            })
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    },
-
-    /* get user's orders */
-    async get_order(req, res) {
-        try {
-            const orders = await Order.findOne({ userId: req.params.userId });
-            if (!orders) {
-                res.status(404).json({
-                    type: "error",
-                    message: "User doesn't exists"
-                })
-            } else {
-                res.status(200).json({
-                    type: "success",
-                    orders
-                })
-            }
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    },
-
-    /* add order */
-    async create_order(req, res) {
-        const newOrder = new Order(req.body);
-        try {
-            const savedOrder = await newOrder.save();
-            res.status(201).json({
-                type: "success",
-                message: "Order created successfully",
-                savedOrder
-            })
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    },
-
-    /* update order */
-    async update_order(req, res) {
-        try {
-            const updatedOrder = await Cart.findByIdAndUpdate(req.params.id, {
-                $set: req.body
-            },
-                { new: true }
-            );
-            res.status(200).json({
-                type: "success",
-                message: "Cart updated successfully",
-                updatedOrder
-            })
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    },
-
-    /* delete order */
-    async delete_order(req, res) {
-        try {
-            await Order.findOneAndDelete(req.params.id);
-            res.status(200).json({
-                type: "success",
-                message: "Order has been deleted successfully"
-            });
-        } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
-        }
-    }
+		});
+	}
 };
 
 module.exports = OrderController;

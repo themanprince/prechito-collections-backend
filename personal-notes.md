@@ -12,3 +12,5 @@
 * /controllers/CategoryController.js
 * /routes/category.js = (/api/v1/category/) ✅
 * /middlewares/verifyToken.js
+* /models/Product.js
+* POST /order route

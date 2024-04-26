@@ -2,13 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const { OrderController } = require('../controllers');
-const { authenticationVerifier, accessLevelVerifier, isAdminVerifier } = require('../middlewares/verifyToken');
+const { authenticationVerifier} = require('../middlewares/verifyToken');
 
-router.get('/', isAdminVerifier, OrderController.get_orders);
-router.get('/income', isAdminVerifier, OrderController.get_income);
-router.get('/:userId', accessLevelVerifier, OrderController.get_order);
-router.post('/', authenticationVerifier, OrderController.create_order);
-router.put('/:id', isAdminVerifier, OrderController.update_order);
-router.delete('/:id', isAdminVerifier, OrderController.delete_order);
+//router.get('/', authenticationVerifier, OrderController.get_orders);
+//router.get('/:userId', authenticationVerifier, OrderController.get_order);
+router.post('/', OrderController.create_order);
+//router.put('/:id', authenticationVerifier, OrderController.update_order);
+//router.delete('/:id', authenticationVerifier, OrderController.delete_order);
 
 module.exports = router;
