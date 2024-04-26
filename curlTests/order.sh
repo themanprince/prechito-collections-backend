@@ -7,7 +7,7 @@ echo ""
 echo "Please exit if you havent done the dollowing yet"
 sleep 0.6
 
-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzEzOTY3MzQyLCJleHAiOjE3MTQwNTM3NDJ9.QFqFqPjlX4D4nDfbdEk9As_n9QQbqlM05YG2LeeU0is
+token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzE0MDkyNTM3LCJleHAiOjE3MTQxNzg5Mzd9.CMxDUrzm2VSD8gJ8k0oAG3hDRwnM0JWOSO0RT3tUKbQ
 
 encrypted_order=$(node helpers/encrypt.js '{
 	"personal_details": {
