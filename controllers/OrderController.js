@@ -61,6 +61,46 @@ const OrderController = {
 			setTimeout(checkIfPaymentMadeAfterTimeout, BANK_PAY_TIMEOUT);
 
 		});
+	},
+	
+	async get_order(req, res) {
+		try {
+            const order = await Order.findById(req.params.userId);
+            if (!order)
+                res.status(404).json({
+                    "type": "error",
+                    "message": "Order doesn't exists"
+                })
+            else
+                res.status(200).json({
+                    "type": "success",
+                    "data": order
+                })
+            
+        } catch (err) {
+            res.status(500).json({
+                type: "error",
+                message: "Something went wrong please try again",
+                "err": err.message
+            })
+        }
+	},
+	
+	async update_order(req, res) {
+		try {
+			const {id} = req.params;
+			await Order.findByIdAndUpdateStatus(id, req.query); //shikina... two lines.. power of good design
+			res.status(200).json({
+				type: "success",
+				"message": "done"
+			});			
+		} catch (err) {
+            res.status(500).json({
+                type: "error",
+                message: "Something went wrong please try again",
+                "err": err.message
+            })
+		}
 	}
 };
 
