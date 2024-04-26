@@ -140,7 +140,7 @@ class Product {
 		
 		let result = await getPageSkeleton(pg, lengthQuery, idQuery);
 		
-		const product_ids = result.rows.map(row => row["product_id"]);
+		const product_ids = result.map(row => row["product_id"]);
 
 		let products = [];
 		

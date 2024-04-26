@@ -1,5 +1,6 @@
 const connectDB = require(__dirname + "/../helpers/connectDB");
 const Product = require(__dirname + "/../models/Product");
+const getPageSkeleton = require(__dirname + "/../helpers/getPageSkeleton");
 
 class Order {
 	
@@ -132,6 +133,22 @@ class Order {
 			
 			await conn.query(query, [payload.is_order_delivered, order_id]);
 		}
+	}
+	
+	static async getPage(pg, is_order_delivered/*incase you wish to filter results by this param*/) {
+		const lengthQuery = `
+			SELECT count(*) FROM pc_product.order
+			WHERE is_paid_for=true ${(is_order_delivered != undefined) ? 'AND is_order_delivered='+is_order_delivered : ''}
+		`;
+		
+		const idQuery = `
+			SELECT * FROM pc_product.order
+			WHERE is_paid_for=true ${(is_order_delivered != undefined) ? 'AND is_order_delivered='+is_order_delivered : ''}
+		`;
+		
+		const result = await getPageSkeleton(pg, lengthQuery, idQuery);
+		
+		return result;
 	}
 }
 

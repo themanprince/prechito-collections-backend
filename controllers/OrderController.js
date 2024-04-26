@@ -101,6 +101,24 @@ const OrderController = {
                 "err": err.message
             })
 		}
+	},
+	
+	async get_orders(req, res) {
+		const pg = req.params.pg || 0;
+		const is_order_delivered = req.params.is_order_delivered;
+		
+		try {
+			const result = await Order.getPage(pg, is_order_delivered);
+			res.status(200).json({
+				"type": "success",
+				"data": result
+			});
+		} catch(err) {
+			res.status(500).json({
+				"type": error,
+				"message": err.message
+			});
+		}
 	}
 };
 

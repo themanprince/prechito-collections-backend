@@ -8,7 +8,7 @@ async function getPageSkeleton(pg, lengthQuery, idQuery) {
 		//lengthQuery is just the specific query to acquire the length of the records you wish to obtain a page from
 		//it will be used to calculate the offset and limit of records obtained by running your
 		//idQuery, which obtains the actual records themselves
-		
+		//it was named idQuery because it was originally used in Product.getPageSkeletonImpro, where it retrieved product_ids
 		const conn = await connectDB();
 		
 		let result = await conn.query(lengthQuery);
@@ -27,7 +27,7 @@ async function getPageSkeleton(pg, lengthQuery, idQuery) {
 		
 		result = await conn.query(idQuery);
 		
-		return result;
+		return result.rows;
 }
 
 module.exports = getPageSkeleton;
