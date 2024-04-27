@@ -1,5 +1,6 @@
 const connectDB = require(__dirname + "/../helpers/connectDB");
 const Product = require(__dirname + "/../models/Product");
+const getPageSkeleton = require(__dirname + "/../helpers/getPageSkeleton");
 
 class Order {
 	
@@ -90,6 +91,64 @@ class Order {
 		`;
 		
 		await conn.query(deleteOrderQuery, [order_id]);
+	}
+	
+	static async findById(order_id) {
+		const conn = await connectDB();
+		//first getting from pc_product.order table
+		let query = `SELECT * FROM pc_product.order WHERE order_id=$1`;
+		let result = await conn.query(query, [order_id]);
+		let orderDetails = result.rows[0];
+		//getting the purchased products as well
+		query = `SELECT product_id, quantity_purchased, buying_price FROM pc_product.purchased_product WHERE order_id=$1`;
+		result = await conn.query(query, [order_id]);
+		orderDetails.products_ordered = result.rows;
+		
+		return orderDetails;
+	}
+	
+	static async findByIdAndUpdateStatus(order_id, payload) {
+		//for now I wish for this to only update payment status and delivery status
+		//ig so that admins can change less from an already made order
+		const conn = await connectDB();
+		
+		//commenting out next set of lines of code cus I believe admins should can't be able to change the payment status
+		//and it should only be changed by timeout which checks if payment is made some time after order is made
+		/*if("is_paid_for" in payload) {
+			let query = `
+				UPDATE pc_product.order
+				SET is_paid_for=$1
+				WHERE order_id=$2
+			`;
+			
+			await conn.query(query, [payload.is_paid_for, order_id]);
+		}*/
+		
+		if("is_order_delivered" in payload) {
+			let query = `
+				UPDATE pc_product.order
+				SET is_order_delivered=$1
+				WHERE order_id=$2
+			`;
+			
+			await conn.query(query, [payload.is_order_delivered, order_id]);
+		}
+	}
+	
+	static async getPage(pg, is_order_delivered/*incase you wish to filter results by this param*/) {
+		const lengthQuery = `
+			SELECT count(*) FROM pc_product.order
+			WHERE is_paid_for=true ${(is_order_delivered != undefined) ? 'AND is_order_delivered='+is_order_delivered : ''}
+		`;
+		
+		const idQuery = `
+			SELECT * FROM pc_product.order
+			WHERE is_paid_for=true ${(is_order_delivered != undefined) ? 'AND is_order_delivered='+is_order_delivered : ''}
+		`;
+		
+		const result = await getPageSkeleton(pg, lengthQuery, idQuery);
+		
+		return result;
 	}
 }
 

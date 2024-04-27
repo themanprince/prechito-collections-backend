@@ -2,7 +2,7 @@ echo "Pleaze run category.sh test to insert new caegories"
 echo "waiting for you to exit if you havent"
 sleep 2
 
-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzE0MDkyNTM3LCJleHAiOjE3MTQxNzg5Mzd9.CMxDUrzm2VSD8gJ8k0oAG3hDRwnM0JWOSO0RT3tUKbQ
+token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzE0MjIzNDMzLCJleHAiOjE3MTQzMDk4MzN9.VWyWuI-k9jRuKcmPqNlxAovnzmPiKtj1jAz5jCkOdd4
 
 echo ""
 echo ""

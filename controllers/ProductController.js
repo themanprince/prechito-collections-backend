@@ -1,11 +1,12 @@
 const Product = require(__dirname + '/../models/Product');
+const respondError = require(__dirname + "/../helpers/respondError");
 
 const ProductController = {
     
     /* get all products */
     async get_products(req, res) {
 
-        const qPg = req.query.pg || 0;
+        const qPg = req.query.pg || 1;
         const qCategory = req.query.category;
 
         try {
@@ -22,11 +23,7 @@ const ProductController = {
                 products
             })
         } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                "err": err.message
-            })
+            respondError(res, err);
         }
     },
 
@@ -46,11 +43,7 @@ const ProductController = {
                 })
             }   
         } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err
-            })
+           respondError(res, err);
         }
     },
 
@@ -65,11 +58,7 @@ const ProductController = {
                 savedProduct
             })
         } catch (err) {
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                err: err.message
-            })
+            respondError(res, err);
         }
     },
 
@@ -90,11 +79,7 @@ const ProductController = {
                     updatedProduct
                 })
             } catch (err) {
-                res.status(500).json({
-                    type: "error",
-                    message: "Something went wrong please try again",
-                    err
-                })
+                respondError(res, err);
             }
         }
     },
@@ -115,11 +100,7 @@ const ProductController = {
                     message: "Product has been deleted successfully"
                 });
             } catch (err) {
-                res.status(500).json({
-                    type: "error",
-                    message: "Something went wrong please try again",
-                    err
-                })
+            	respondError(res, err);
             }
         }
     }

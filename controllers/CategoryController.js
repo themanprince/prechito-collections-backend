@@ -1,4 +1,5 @@
 const Category = require(__dirname + "/../models/category");
+const respondError = require(__dirname + "/../helpers/respondError");
 
 const CategoryController =  {
 	async create_category(req, res) {
@@ -14,11 +15,7 @@ const CategoryController =  {
 				"data": category_ids
 			});
 		} catch(err) {
-			res.status(500).json({
-				"type": "error",
-				"msg": "create categories failed",
-				"data": err.message
-			});
+			respondError(res, err);
 		}
 	}
 }

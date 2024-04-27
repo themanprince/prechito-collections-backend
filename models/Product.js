@@ -1,6 +1,5 @@
 const connectDB = require(__dirname + "/../helpers/connectDB");
-const calcStartAndEnd = require(__dirname + "/../helpers/calcStartAndEnd");
-const {PG_LENGTH} = require(__dirname + "/../config/constants-config.js");
+const getPageSkeleton = require(__dirname + "/../helpers/getPageSkeleton");
 
 async function insert_product_to_categories(product_id, category_ids) {
 	const conn = await connectDB();
@@ -137,28 +136,11 @@ class Product {
 		await conn.query(query, [id]);
 	}
 	
-	static async getPageSkeleton(pg, lengthQuery, idQuery) {
-		//since most my getPage... functions are similar
+	static async getPageSkeletonImpro/*vised*/(pg, lengthQuery, idQuery) {
 		
-		const conn = await connectDB();
+		let result = await getPageSkeleton(pg, lengthQuery, idQuery);
 		
-		let result = await conn.query(lengthQuery);
-		const length = parseInt(result.rows[0]["count"]);
-		
-		const [pgStart, ] = calcStartAndEnd(length, pg, PG_LENGTH);
-		
-		if((pgStart !=0) && (!pgStart))
-			throw new RangeError("Unexisting page or unexisting/empty category");
-		
-		//idQuery is each getPage implementation of a SQL statement to get a page of...
-		//note the '+=' below in initialization of idQuery
-		idQuery += `
-			OFFSET ${pgStart} LIMIT ${PG_LENGTH}
-		`;
-		
-		result = await conn.query(idQuery);
-		
-		const product_ids = result.rows.map(row => row["product_id"]);
+		const product_ids = result.map(row => row["product_id"]);
 
 		let products = [];
 		
@@ -183,7 +165,7 @@ class Product {
 			ORDER BY product_id
 		`;
 		
-		const products = await Product.getPageSkeleton(pg, lengthQuery, idQuery);
+		const products = await Product.getPageSkeletonImpro(pg, lengthQuery, idQuery);
 		
 		return products;
 	}
@@ -210,7 +192,7 @@ class Product {
 			ORDER BY p.product_id
 		`;
 		
-		const products = await Product.getPageSkeleton(pg, lengthQuery, idQuery);
+		const products = await Product.getPageSkeletonImpro(pg, lengthQuery, idQuery);
 		
 		return products;
 		
