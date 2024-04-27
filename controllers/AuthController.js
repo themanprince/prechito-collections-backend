@@ -1,6 +1,7 @@
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const respondError = require(__dirname + "/../helpers/respondError");
 
 const AuthController = {
 
@@ -19,13 +20,7 @@ const AuthController = {
                 data: newAdmin.toJSON()
             })
         } catch (err) {
-        	
-        	
-            res.status(500).json({
-                type: "error",
-                message: "Something went wrong please try again",
-                "err": err.message
-            })
+        	respondError(res, err);
         }
     },
 

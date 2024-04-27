@@ -7,7 +7,7 @@ echo ""
 echo "Please exit if you havent done the dollowing yet"
 sleep 0.6
 
-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzE0MTMyMDYyLCJleHAiOjE3MTQyMTg0NjJ9.qKyBBGa0iWOfsnagWYVEuUI1VBNNF7Uk_RN8JOo1dUc
+token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6MSwiaWF0IjoxNzE0MjIzNDMzLCJleHAiOjE3MTQzMDk4MzN9.VWyWuI-k9jRuKcmPqNlxAovnzmPiKtj1jAz5jCkOdd4
 
 function createOrderWithThreeProducts() {
 	user_fname=$1
@@ -29,7 +29,7 @@ function createOrderWithThreeProducts() {
 		\"products_ordered\": [
 			{\"product_id\": \"${product1_id}\", \"quantity_ordered\": \"${product1_qty}\"},
 			{\"product_id\": \"${product2_id}\", \"quantity_ordered\": \"${product2_qty}\"},
-			{\"product_id\": \"${product3_id}\", \"quantity_ordered\": \"${product3_qty}\"},
+			{\"product_id\": \"${product3_id}\", \"quantity_ordered\": \"${product3_qty}\"}
 		]
 	}")
 	
@@ -47,7 +47,7 @@ function createOrderWithThreeProducts() {
 echo ""
 echo ""
 echo "First testing creating an order"
-createOrderWithThreeProducts "Ewoma" "08037680836" "hospital road, ozoro" 3 4 1 4 5 3
+createOrderWithThreeProducts "Ewoma" "08037680836" "hospital road, ozoro" 3 4 20 4 5 3
 
 
 echo ""
@@ -73,10 +73,15 @@ echo ""
 echo ""
 echo "Next, testing getting all orders"
 echo "...gon first create pages of orders"
+echo
+echo "NOTE"
+echo "some of these may return error if any of the random orders attempts to purchase product with id 1"
+echo "considering I deleted it"
 
 page_size=10 #last time I checked
-order_id=1 #order 1 has already been created
-while ((order_id < (3 * page_size)))
+pages_to_create=3
+order_id=1 #order 1 has already been created, so its our zero (0) index
+while ((order_id < (pages_to_create * page_size)))
 do
 	order_id=$((order_id + 1))
 	
@@ -86,7 +91,7 @@ do
 	
 	echo""
 	echo "creating order ${order_id}"
-	createOrderWithThreeProducts "Prince" "07010935636" "Lucas Abraka" randomInt2 randomInt1 randomInt3 randomInt1 randomInt2 randomInt3
+	createOrderWithThreeProducts "Prince" "07010935636" "Lucas Abraka" $randomInt2 $randomInt1 $randomInt3 $randomInt1 $randomInt2 $randomInt3
 	
 	if((order_id % 2 == 0)) #so we can have some delivered orders for the testing purposes
 	then
@@ -102,14 +107,14 @@ curl "http://localhost:3000/api/v1/orders?pg=1" -X GET \
 
 echo ""
 echo ""
-cate="true"
+cate="true" #note "true"
 echo "getting 2nd page of is_order_delivered=${cate}"
 curl "http://localhost:3000/api/v1/orders?pg=2&is_order_delivered=${cate}" -X GET \
 -H "token: Bearer ${token}"
 
 echo ""
 echo ""
-cate="false"
+cate="false" #note "false"
 echo "getting 2nd page of is_order_delivered=${cate}"
 curl "http://localhost:3000/api/v1/orders?pg=2&is_order_delivered=${cate}" -X GET \
 -H "token: Bearer ${token}"
@@ -117,7 +122,7 @@ curl "http://localhost:3000/api/v1/orders?pg=2&is_order_delivered=${cate}" -X GE
 
 echo ""
 echo ""
-echo "getting zeroth(unexisting) page raw"
+echo "getting zeroth(unexistent) page raw"
 curl "http://localhost:3000/api/v1/orders?pg=0" -X GET \
 -H "token: Bearer ${token}"
 
@@ -125,4 +130,14 @@ echo ""
 echo ""
 echo "getting unexistent page"
 curl "http://localhost:3000/api/v1/orders?pg=100" -X GET \
+-H "token: Bearer ${token}"
+
+cate="true" #note "true"
+echo "getting unexistent page of is_order_delivered=${cate}"
+curl "http://localhost:3000/api/v1/orders?pg=100&is_order_delivered=${cate}" -X GET \
+-H "token: Bearer ${token}"
+
+ate="false" #note "false"
+echo "getting page withouth specifying pg, is_order_delivered=${cate}"
+curl "http://localhost:3000/api/v1/orders?is_order_delivered=${cate}" -X GET \
 -H "token: Bearer ${token}"
