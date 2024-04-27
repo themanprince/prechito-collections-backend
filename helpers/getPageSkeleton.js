@@ -9,6 +9,9 @@ async function getPageSkeleton(pg, lengthQuery, idQuery) {
 		//it will be used to calculate the offset and limit of records obtained by running your
 		//idQuery, which obtains the actual records themselves
 		//it was named idQuery because it was originally used in Product.getPageSkeletonImpro, where it retrieved product_ids
+		
+		pg = parseInt(pg);
+		
 		const conn = await connectDB();
 		
 		let result = await conn.query(lengthQuery);
@@ -16,7 +19,7 @@ async function getPageSkeleton(pg, lengthQuery, idQuery) {
 		
 		const [pgStart, ] = calcStartAndEnd(length, pg, PG_LENGTH);
 		
-		if((pgStart !=0) && (!pgStart))
+		if(pgStart == -1)
 			throw new RangeError("Likely Unexisting page or Unexisting category(for /product related kini)");
 		
 		//idQuery is each getPage implementation of a SQL statement to get a page of...

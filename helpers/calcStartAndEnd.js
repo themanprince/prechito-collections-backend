@@ -6,7 +6,8 @@
 module.exports = function(entrySize, pgNum, PG_LENGTH) {
 	const maxObtainable = Math.ceil(entrySize / PG_LENGTH); //max obtainable number of page
 	if((pgNum < 1) || (pgNum > maxObtainable))
-		return [];
+		return [-1, -1];
+	
 	
 	let pgEnd = (pgNum * PG_LENGTH); //this value may soon change,,. just need this first in order to obtain the pgStart
 	let pgStart = (pgNum === 1)? 0 : (pgEnd - PG_LENGTH);

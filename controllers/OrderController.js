@@ -107,8 +107,8 @@ const OrderController = {
 	},
 	
 	async get_orders(req, res) {
-		const pg = req.params.pg || 1;
-		const is_order_delivered = req.params.is_order_delivered;
+		const pg = req.query.pg || 1;
+		const is_order_delivered = req.query.is_order_delivered;
 		
 		try {
 			const result = await Order.getPage(pg, is_order_delivered);

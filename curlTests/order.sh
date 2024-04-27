@@ -75,8 +75,8 @@ echo "Next, testing getting all orders"
 echo "...gon first create pages of orders"
 echo
 echo "NOTE"
-echo "some of these may return error if any of the random orders attempts to purchase product with id 1"
-echo "considering I deleted it"
+echo "* some of these may return error if any of the random orders attempts to purchase product with id 1, considering I deleted it"
+echo "* also, firstly set is_paid_for=false in that query inside Order.get_orders... with s at the end"
 
 page_size=10 #last time I checked
 pages_to_create=3
@@ -132,12 +132,16 @@ echo "getting unexistent page"
 curl "http://localhost:3000/api/v1/orders?pg=100" -X GET \
 -H "token: Bearer ${token}"
 
+echo ""
+echo ""
 cate="true" #note "true"
 echo "getting unexistent page of is_order_delivered=${cate}"
 curl "http://localhost:3000/api/v1/orders?pg=100&is_order_delivered=${cate}" -X GET \
 -H "token: Bearer ${token}"
 
-ate="false" #note "false"
+echo ""
+echo ""
+cate="false" #note "false"
 echo "getting page withouth specifying pg, is_order_delivered=${cate}"
 curl "http://localhost:3000/api/v1/orders?is_order_delivered=${cate}" -X GET \
 -H "token: Bearer ${token}"
