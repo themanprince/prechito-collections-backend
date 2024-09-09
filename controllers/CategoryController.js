@@ -1,4 +1,4 @@
-const Category = require(__dirname + "/../models/category");
+const Category = require(__dirname + "/../models/Category");
 const respondError = require(__dirname + "/../helpers/respondError");
 
 const CategoryController =  {
