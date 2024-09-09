@@ -8,6 +8,12 @@ const app = express();
 //before further ado done
 dotenv.config();
 
+app.use((req, res, next) => {
+    console.log(req);
+    console.log();
+    next();
+});
+
 /* configure body-parser */
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
