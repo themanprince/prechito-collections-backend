@@ -9,7 +9,7 @@ const app = express();
 dotenv.config();
 
 app.use((req, res, next) => {
-    console.log(req);
+    console.log(req.method, req.url);
     console.log();
     next();
 });
